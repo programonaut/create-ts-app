@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-const { execSync } = require('child_process');
-const path = require('path');
-const fs = require('fs');
+const { execSync } = require("child_process");
+const path = require("path");
+const fs = require("fs");
 
 if (process.argv.length < 3) {
-    console.log('You have to provide a name to your app.');
-    console.log('For example :');
-    console.log('    npx create-my-boilerplate my-app');
-    process.exit(1);
+  console.log("You have to provide a name to your app.");
+  console.log("For example :");
+  console.log("    npx create-ts-app my-app");
+  process.exit(1);
 }
 
 const projectName = process.argv[2];
@@ -17,34 +17,36 @@ const projectPath = path.join(currentPath, projectName);
 const git_repo = "https://github.com/programonaut/create-ts-app.git";
 
 try {
-    fs.mkdirSync(projectPath);
+  fs.mkdirSync(projectPath);
 } catch (err) {
-    if (err.code === 'EEXIST') {
-        console.log(`The file ${projectName} already exist in the current directory, please give it another name.`);
-    } else {
-        console.log(error);
-    }
-    process.exit(1);
+  if (err.code === "EEXIST") {
+    console.log(`The file ${projectName} already exist in the current directory, please give it another name.`);
+  } else {
+    console.log(error);
+  }
+  process.exit(1);
 }
 
-  async function main() {
-    try {
-      console.log('Downloading files...');
-      execSync(`git clone --depth 1 ${git_repo} ${projectPath}`);
+async function main() {
+  try {
+    console.log("Downloading files...");
+    execSync(`git clone --depth 1 ${git_repo} ${projectPath} --quiet`);
 
-      process.chdir(projectPath);
+    process.chdir(projectPath);
 
-      console.log('Installing dependencies...');
-      execSync('npm install');
+    console.log("Removing useless files");
+    fs.rmSync(path.join(projectPath, ".git"), { recursive: true, force: true });
+    fs.rmSync(path.join(projectPath, "bin"), { recursive: true, force: true });
 
-      console.log('Removing useless files');
-      execSync('npx rimraf ./.git');
-      fs.rmSync(path.join(projectPath, 'bin'), { recursive: true});
+    console.log("Installing dependencies...");
+    execSync("npm install");
 
-      console.log('The installation is done, this is ready to use !');
-
-    } catch (error) {
-      console.log(error);
-    }
+    console.log("The installation is done!");
+    console.log("You can now run your app with:");
+    console.log(`    cd ${projectName}`);
+    console.log(`    npm run dev`);
+  } catch (error) {
+    console.log(error);
+  }
 }
 main();
